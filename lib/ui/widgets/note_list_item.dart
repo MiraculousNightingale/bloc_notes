@@ -1,4 +1,4 @@
-import 'package:bloc_notes/models/note.dart';
+import 'package:bloc_notes/models/note/note.dart';
 import 'package:flutter/material.dart';
 
 class NoteListItem extends StatelessWidget {

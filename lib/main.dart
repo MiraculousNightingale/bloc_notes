@@ -1,12 +1,17 @@
 import 'dart:math';
 
-import 'package:bloc_notes/app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'models/note.dart';
+import 'app/app.dart';
+import 'bloc/notes_bloc.dart';
+import 'models/note/note.dart';
 
 void main() {
-  runApp(NotesApp());
+  runApp(BlocProvider(
+    create: (context) => NotesBloc(),
+    child: NotesApp(),
+  ));
 }
 
 // TODO: Remove later

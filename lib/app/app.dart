@@ -22,9 +22,7 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: NoteFormScreen.subPath,
-          builder: (context, state) => const NoteFormScreen(
-            isCreateMode: true,
-          ),
+          builder: (context, state) => const NoteFormScreen(),
         ),
         //TODO: implement update route
         // GoRoute(
