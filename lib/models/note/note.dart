@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 class Note {
   Note({
+    // TODO: remove manual id assignment
+    required this.id,
     required this.title,
     required this.text,
     DateTime? createdAt,
@@ -11,6 +13,8 @@ class Note {
     this.createdAt = createdAt ?? DateTime.now();
     this.updatedAt = updatedAt ?? this.createdAt;
   }
+
+  final String id;
   final String title;
   final String text;
   late final DateTime createdAt;
@@ -21,12 +25,14 @@ class Note {
   String get updatedAtFormatted => DateFormat.yMMMMd().format(updatedAt);
 
   Note copyWith({
+    String? id,
     String? title,
     String? text,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Note(
+      id: id ?? this.id,
       title: title ?? this.title,
       text: text ?? this.text,
       createdAt: createdAt ?? this.createdAt,

@@ -10,6 +10,11 @@ final class NotesCreated extends NotesEvent {
 
 final class NotesFetched extends NotesEvent {}
 
+final class NotesDeleted extends NotesEvent {
+  NotesDeleted({required this.id});
+  final String id;
+}
+
 final class NotesErrorHandled extends NotesEvent {
   NotesErrorHandled(this.error);
 

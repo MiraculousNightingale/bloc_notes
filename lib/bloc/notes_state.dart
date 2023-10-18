@@ -1,17 +1,28 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'notes_bloc.dart';
+
+enum NotesStatus {
+  initial,
+  creating,
+  createFinished,
+  fetching,
+  fetchFinished,
+  updating,
+  updateFinished,
+  deleting,
+  deleteFinished,
+}
 
 @immutable
 class NotesState extends Equatable {
   const NotesState({
     required this.notes,
-    this.isCreating = false,
-    this.isLoading = false,
-    this.isUpdating = false,
-    this.isDeleting = false,
+    this.status = NotesStatus.initial,
     this.errors = const <Failure>{},
   });
 
   final List<Note> notes;
+  final NotesStatus status;
 
   List<Note> get notesSortedByCreatedAt => [...notes]..sort(
       (a, b) {
@@ -19,10 +30,10 @@ class NotesState extends Equatable {
       },
     );
 
-  final bool isCreating;
-  final bool isLoading;
-  final bool isUpdating;
-  final bool isDeleting;
+  bool get isCreating => status == NotesStatus.creating;
+  bool get isFetching => status == NotesStatus.fetching;
+  bool get isUpdating => status == NotesStatus.updating;
+  bool get isDeleting => status == NotesStatus.deleting;
 
   final Set<Failure> errors;
 
@@ -42,22 +53,16 @@ class NotesState extends Equatable {
 
   @override
   List<Object?> get props =>
-      [notes, isCreating, isLoading, isUpdating, isDeleting, errors];
+      [notes, isCreating, isFetching, isUpdating, isDeleting, errors];
 
   NotesState copyWith({
     List<Note>? notes,
-    bool? isCreating,
-    bool? isLoading,
-    bool? isUpdating,
-    bool? isDeleting,
+    NotesStatus? status,
     Set<Failure>? errors,
   }) {
     return NotesState(
       notes: notes ?? this.notes,
-      isCreating: isCreating ?? this.isCreating,
-      isLoading: isLoading ?? this.isLoading,
-      isUpdating: isUpdating ?? this.isUpdating,
-      isDeleting: isDeleting ?? this.isDeleting,
+      status: status ?? this.status,
       errors: errors ?? this.errors,
     );
   }

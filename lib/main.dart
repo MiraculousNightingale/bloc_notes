@@ -16,6 +16,7 @@ void main() {
 
 // TODO: Remove later
 final kRandom = Random();
+
 List<Note> generateNotes() {
   final list = <Note>[];
   for (var i = 1; i <= 15; ++i) {
@@ -23,10 +24,11 @@ List<Note> generateNotes() {
     final updatedAt = createdAt + kRandom.nextInt(i + 10);
     list.add(
       Note(
+        id: UniqueKey().toString(),
         title: 'Note $i',
         text: 'Text $i',
-        createdAt: DateTime.now().add(Duration(days: createdAt)),
-        updatedAt: DateTime.now().add(Duration(days: updatedAt)),
+        createdAt: DateTime.now().subtract(Duration(days: createdAt)),
+        updatedAt: DateTime.now().subtract(Duration(days: updatedAt)),
       ),
     );
   }

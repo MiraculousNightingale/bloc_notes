@@ -42,10 +42,8 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<NotesBloc, NotesState>(
-      listenWhen: (previous, current) {
-        // Check if state transitioned through the creation process
-        return previous.isCreating && !current.isCreating;
-      },
+      listenWhen: (previous, current) =>
+          current.status == NotesStatus.createFinished,
       listener: (context, state) {
         // TODO: is there a better way to handle errors?
         final error = state.getError<NotesCreateFailure>();
@@ -75,6 +73,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                     context.read<NotesBloc>().add(
                           NotesCreated(
                             newNote: Note(
+                              id: UniqueKey().toString(),
                               title: titleController.text,
                               text: textController.text,
                             ),
@@ -95,7 +94,8 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                 children: [
                   TextFormField(
                     controller: titleController,
-                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                    onTapOutside: (_) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
                     decoration: InputDecoration(
                       label: const Text('Title'),
                       border: OutlineInputBorder(
@@ -108,7 +108,8 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                   ),
                   TextFormField(
                     controller: textController,
-                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                    onTapOutside: (_) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
                     maxLines: 10,
                     decoration: InputDecoration(
                       label: const Text('Text'),
