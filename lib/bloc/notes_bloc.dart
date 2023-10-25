@@ -81,15 +81,23 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     NotesDeleted event,
     Emitter<NotesState> emit,
   ) async {
-    emit(state.copyWith(status: NotesStatus.deleting));
+    emit(state.copyWith(
+      status: NotesStatus.deleting,
+      beingDeletedIds: {...state.beingDeletedIds, event.id},
+    ));
     try {
       // TODO: deleting with sqflite
       await Future.delayed(const Duration(seconds: 1)); // TODO: remove later
       // throw (Exception('Test error.'));
       kDummyNotes.removeWhere((note) => note.id == event.id);
+      final newBeingDeletedIds = {
+        ...state.beingDeletedIds.difference({event.id})
+      };
       emit(state.copyWith(
         notes: [...state.notes..removeWhere((note) => note.id == event.id)],
-        status: NotesStatus.deleteFinished,
+        status: newBeingDeletedIds.isEmpty ? NotesStatus.deleteFinished : null,
+        beingDeletedIds: newBeingDeletedIds,
+        // lastDeletedId: event.id,
       ));
     } on Exception catch (_) {
       emit(state.copyWith(
@@ -98,7 +106,16 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
           const NotesDeleteFailure('Error when deleting.'),
         },
         status: NotesStatus.deleteFinished,
+        beingDeletedIds: {
+          ...state.beingDeletedIds.difference({event.id})
+        },
+        // lastDeletedId: event.id,
       ));
     }
+  }
+
+  @override
+  void onTransition(Transition<NotesEvent, NotesState> transition) {
+    super.onTransition(transition);
   }
 }

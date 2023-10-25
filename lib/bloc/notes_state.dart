@@ -19,6 +19,8 @@ class NotesState extends Equatable {
     required this.notes,
     this.status = NotesStatus.initial,
     this.errors = const <Failure>{},
+    this.beingDeletedIds = const <String>{},
+    // this.lastDeletedId = '',
   });
 
   final List<Note> notes;
@@ -34,6 +36,10 @@ class NotesState extends Equatable {
   bool get isFetching => status == NotesStatus.fetching;
   bool get isUpdating => status == NotesStatus.updating;
   bool get isDeleting => status == NotesStatus.deleting;
+  final Set<String> beingDeletedIds;
+  // final String lastDeletedId;
+
+  bool isBeingDeleted(String noteId) => beingDeletedIds.contains(noteId);
 
   final Set<Failure> errors;
 
@@ -52,18 +58,30 @@ class NotesState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [notes, isCreating, isFetching, isUpdating, isDeleting, errors];
+  List<Object?> get props => [
+        notes,
+        isCreating,
+        isFetching,
+        isUpdating,
+        isDeleting,
+        errors,
+        beingDeletedIds,
+        // lastDeletedId,
+      ];
 
   NotesState copyWith({
     List<Note>? notes,
     NotesStatus? status,
     Set<Failure>? errors,
+    Set<String>? beingDeletedIds,
+    // String? lastDeletedId,
   }) {
     return NotesState(
       notes: notes ?? this.notes,
       status: status ?? this.status,
       errors: errors ?? this.errors,
+      beingDeletedIds: beingDeletedIds ?? this.beingDeletedIds,
+      // lastDeletedId: lastDeletedId ?? this.lastDeletedId,
     );
   }
 }

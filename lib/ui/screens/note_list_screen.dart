@@ -1,5 +1,7 @@
 import 'package:bloc_notes/models/note/note_failure.dart';
 import 'package:bloc_notes/ui/screens/note_form_screen.dart';
+import 'package:bloc_notes/ui/widgets/animated_note_list.dart';
+import 'package:bloc_notes/ui/widgets/note_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -28,15 +30,23 @@ class _NoteListScreenState extends State<NoteListScreen> {
       appBar: AppBar(
         title: const Text('Notes with BLoC'),
         actions: [
-          IconButton(
-            onPressed: () {
-              context.go(NoteFormScreen.path);
+          BlocBuilder<NotesBloc, NotesState>(
+            builder: (context, state) {
+              return IconButton(
+                onPressed: state.isDeleting
+                    ? null
+                    : () => context.go(NoteFormScreen.path),
+                icon: const Icon(Icons.add),
+              );
             },
-            icon: const Icon(Icons.add),
           ),
         ],
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
+        buildWhen: (previous, current) =>
+            previous.isFetching != current.isFetching ||
+            current.status == NotesStatus.createFinished ||
+            current.status == NotesStatus.updateFinished,
         builder: (context, state) {
           final error = state.getError<NotesFetchFailure>();
           if (error != null) {
@@ -72,16 +82,8 @@ class _NoteListScreenState extends State<NoteListScreen> {
           }
           final sortedNotes = state.notesSortedByCreatedAt;
           // TODO: replace with animated list
-          return ListView.builder(
-            // return AnimatedList(
-            itemCount: sortedNotes.length,
-            // initialItemCount: sortedNotes.length,
-            itemBuilder: (context, index) {
-              // itemBuilder: (context, index, animation) {
-              final note = sortedNotes[index];
-              return NoteListItem(note: note);
-            },
-          );
+          // return ListView.builder(
+          return NoteList(notes: sortedNotes);
         },
       ),
     );
