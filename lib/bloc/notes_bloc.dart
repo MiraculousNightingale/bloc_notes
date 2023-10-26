@@ -100,15 +100,16 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         // lastDeletedId: event.id,
       ));
     } on Exception catch (_) {
+      final newBeingDeletedIds = {
+        ...state.beingDeletedIds.difference({event.id})
+      };
       emit(state.copyWith(
         errors: {
           ...state.errors,
           const NotesDeleteFailure('Error when deleting.'),
         },
-        status: NotesStatus.deleteFinished,
-        beingDeletedIds: {
-          ...state.beingDeletedIds.difference({event.id})
-        },
+        status: newBeingDeletedIds.isEmpty ? NotesStatus.deleteFinished : null,
+        beingDeletedIds: newBeingDeletedIds,
         // lastDeletedId: event.id,
       ));
     }
