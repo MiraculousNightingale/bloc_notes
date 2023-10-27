@@ -35,7 +35,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
               return IconButton(
                 onPressed: state.isDeleting
                     ? null
-                    : () => context.go(NoteFormScreen.path),
+                    : () => context.go(NoteFormScreen.pathCreate),
                 icon: const Icon(Icons.add),
               );
             },
@@ -45,8 +45,9 @@ class _NoteListScreenState extends State<NoteListScreen> {
       body: BlocBuilder<NotesBloc, NotesState>(
         buildWhen: (previous, current) =>
             previous.isFetching != current.isFetching ||
-            current.status == NotesStatus.createFinished ||
-            current.status == NotesStatus.updateFinished,
+            previous.status != current.status &&
+                (current.status == NotesStatus.createFinished ||
+                    current.status == NotesStatus.updateFinished),
         builder: (context, state) {
           final error = state.getError<NotesFetchFailure>();
           if (error != null) {

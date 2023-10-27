@@ -24,7 +24,7 @@ List<Note> generateNotes() {
     final updatedAt = createdAt + kRandom.nextInt(i + 10);
     list.add(
       Note(
-        id: UniqueKey().toString(),
+        id: 'id$i',
         title: 'Note $i',
         text: 'Text $i',
         createdAt: DateTime.now().subtract(Duration(days: createdAt)),

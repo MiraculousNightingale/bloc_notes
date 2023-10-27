@@ -8,6 +8,11 @@ final class NotesCreated extends NotesEvent {
   final Note newNote;
 }
 
+final class NotesUpdated extends NotesEvent {
+  NotesUpdated({required this.updatedNote});
+  final Note updatedNote;
+}
+
 final class NotesFetched extends NotesEvent {}
 
 final class NotesDeleted extends NotesEvent {

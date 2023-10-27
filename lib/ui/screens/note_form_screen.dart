@@ -8,8 +8,10 @@ import '../../models/note/note.dart';
 import 'note_list_screen.dart';
 
 class NoteFormScreen extends StatefulWidget {
-  static const subPath = 'form';
-  static const path = '${NoteListScreen.path}/$subPath';
+  static const subPathCreate = 'create';
+  static const subPathUpdate = 'update';
+  static const pathCreate = '${NoteListScreen.path}/$subPathCreate';
+  static const pathUpdate = '${NoteListScreen.path}/$subPathUpdate';
 
   final Note? initialValue;
 
@@ -32,7 +34,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   void initState() {
     super.initState();
     titleController = TextEditingController(
-      text: widget.initialValue?.text,
+      text: widget.initialValue?.title,
     );
     textController = TextEditingController(
       text: widget.initialValue?.text,
@@ -40,13 +42,22 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   }
 
   @override
+  void dispose() {
+    titleController.dispose();
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<NotesBloc, NotesState>(
       listenWhen: (previous, current) =>
-          current.status == NotesStatus.createFinished,
+          current.status == NotesStatus.createFinished ||
+          current.status == NotesStatus.updateFinished,
       listener: (context, state) {
         // TODO: is there a better way to handle errors?
-        final error = state.getError<NotesCreateFailure>();
+        final error = state.getError<NotesCreateFailure>() ??
+            state.getError<NotesUpdateFailure>();
         if (error != null) {
           final scaffoldMessenger = ScaffoldMessenger.of(context);
           scaffoldMessenger.hideCurrentSnackBar();
@@ -56,7 +67,6 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
           context.read<NotesBloc>().add(NotesErrorHandled(error));
           return;
         }
-
         context.go(NoteListScreen.path);
       },
       child: Scaffold(
@@ -65,20 +75,32 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
           actions: [
             BlocBuilder<NotesBloc, NotesState>(
               builder: (context, state) {
-                if (state.isCreating) {
+                if (state.isCreating || state.isUpdating) {
                   return const CircularProgressIndicator();
                 }
                 return IconButton(
                   onPressed: () {
-                    context.read<NotesBloc>().add(
-                          NotesCreated(
-                            newNote: Note(
-                              id: UniqueKey().toString(),
-                              title: titleController.text,
-                              text: textController.text,
-                            ),
+                    final notesBloc = context.read<NotesBloc>();
+                    if (widget.isCreateMode) {
+                      notesBloc.add(
+                        NotesCreated(
+                          newNote: Note(
+                            id: UniqueKey().toString(),
+                            title: titleController.text,
+                            text: textController.text,
                           ),
-                        );
+                        ),
+                      );
+                    } else {
+                      notesBloc.add(
+                        NotesUpdated(
+                          updatedNote: widget.initialValue!.copyWith(
+                            title: titleController.text,
+                            text: textController.text,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.check),
                 );

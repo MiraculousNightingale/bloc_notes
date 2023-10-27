@@ -14,6 +14,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<NotesErrorHandled>(_onNotesErrorHandled);
     on<NotesFetched>(_onNotesFetched);
     on<NotesCreated>(_onNotesCreated);
+    on<NotesUpdated>(_onNotesUpdated);
     on<NotesDeleted>(_onNotesDeleted);
   }
 
@@ -37,7 +38,9 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
       // TODO: saving with sqflite
       await Future.delayed(const Duration(seconds: 1)); // TODO: remove later
       // throw (Exception('Test error.'));
+
       kDummyNotes.add(newNote);
+
       emit(state.copyWith(
         notes: [...state.notes, newNote],
         status: NotesStatus.createFinished,
@@ -49,6 +52,38 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
           const NotesCreateFailure('Error when creating.'),
         },
         status: NotesStatus.createFinished,
+      ));
+    }
+  }
+
+  Future<void> _onNotesUpdated(
+    NotesUpdated event,
+    Emitter<NotesState> emit,
+  ) async {
+    final updatedNote = event.updatedNote;
+    emit(state.copyWith(status: NotesStatus.updating));
+    try {
+      // TODO: saving with sqflite
+      await Future.delayed(const Duration(seconds: 1)); // TODO: remove later
+      // throw (Exception('Test error.'));
+
+      // for now this is a db
+      final index = kDummyNotes.indexWhere((note) => note.id == updatedNote.id);
+      kDummyNotes[index] = updatedNote;
+
+      final stateIndex =
+          state.notes.indexWhere((note) => note.id == updatedNote.id);
+      emit(state.copyWith(
+        notes: [...state.notes..[stateIndex] = updatedNote],
+        status: NotesStatus.updateFinished,
+      ));
+    } on Exception catch (_) {
+      emit(state.copyWith(
+        errors: {
+          ...state.errors,
+          const NotesUpdateFailure('Error when updating.'),
+        },
+        status: NotesStatus.updateFinished,
       ));
     }
   }

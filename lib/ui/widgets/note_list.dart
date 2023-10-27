@@ -15,11 +15,11 @@ class NoteList extends StatefulWidget {
 }
 
 class _NoteListState extends State<NoteList> {
-  final _dismissingDeletionIds = <String>[];
+  final _deletionInProgressIds = <String>{};
+  final _notesFinishedDeleting = <Note>{};
 
   @override
   Widget build(BuildContext context) {
-    print('reubilt list');
     return BlocListener<NotesBloc, NotesState>(
       listenWhen: (previous, current) => current.hasError<NotesDeleteFailure>(),
       listener: (context, state) {
@@ -40,7 +40,7 @@ class _NoteListState extends State<NoteList> {
           return NoteListItem(
             note: note,
             confirmDismiss: (direction) async {
-              _dismissingDeletionIds.add(note.id);
+              _deletionInProgressIds.add(note.id);
 
               final notesBloc = context.read<NotesBloc>();
               notesBloc.add(NotesDeleted(id: note.id));
@@ -51,16 +51,23 @@ class _NoteListState extends State<NoteList> {
               final isSuccess =
                   !deleteHandledState.hasError<NotesDeleteFailure>();
               if (!isSuccess) {
-                _dismissingDeletionIds.remove(note.id);
+                _deletionInProgressIds.remove(note.id);
               }
 
               return isSuccess;
             },
             onDismissed: (direction) {
-              _dismissingDeletionIds.remove(note.id);
-              widget.notes.remove(note);
-              if (_dismissingDeletionIds.isEmpty) {
-                setState(() {});
+              _deletionInProgressIds.remove(note.id);
+              _notesFinishedDeleting.add(note);
+              if (_deletionInProgressIds.isEmpty) {
+                setState(() {
+                  final difference =
+                      {...widget.notes}.difference(_notesFinishedDeleting);
+                  widget.notes
+                    ..clear()
+                    ..addAll(difference);
+                  _notesFinishedDeleting.clear();
+                });
               }
             },
           );

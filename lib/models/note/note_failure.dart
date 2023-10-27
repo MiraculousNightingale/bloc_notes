@@ -8,8 +8,8 @@ class NotesFetchFailure extends Failure {
   const NotesFetchFailure([super.error]);
 }
 
-class NoteUpdateFailure extends Failure {
-  const NoteUpdateFailure([super.error]);
+class NotesUpdateFailure extends Failure {
+  const NotesUpdateFailure([super.error]);
 }
 
 class NotesDeleteFailure extends Failure {

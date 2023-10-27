@@ -1,7 +1,9 @@
 import 'package:bloc_notes/bloc/notes_bloc.dart';
 import 'package:bloc_notes/models/note/note.dart';
+import 'package:bloc_notes/ui/screens/note_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class NoteListItem extends StatelessWidget {
   const NoteListItem({
@@ -41,9 +43,16 @@ class NoteListItem extends StatelessWidget {
       ),
       child: Material(
         child: ListTile(
+          isThreeLine: true,
           leading: const Icon(Icons.note),
           title: Text(note.title),
-          trailing: Text(note.createdAtFormatted),
+          subtitle: Text(note.createdAtFormatted),
+          trailing: IconButton(
+            onPressed: () {
+              context.go('${NoteFormScreen.pathUpdate}/${note.id}');
+            },
+            icon: const Icon(Icons.edit),
+          ),
         ),
       ),
     );
